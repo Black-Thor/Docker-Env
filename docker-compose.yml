@@ -1,0 +1,38 @@
+version: '3.3'
+services:
+  db:
+    container_name: db
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_USER: 'test'
+      MYSQL_PASSWORD: '9908'
+      MYSQL_DATABASE: 'infragame_dev'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    ports:
+      - 3306:3306
+    hostname: mysql
+
+  server:
+    build: /home/thor/INFRA_GAME/middleware/
+    container_name: express
+    depends_on:
+      - "db"
+    links:
+      - db
+    ports:
+      - 5000:5000
+    volumes:
+      - /home/thor/INFRA_GAME/middleware:/home/node/app/
+    command: npm run start
+  client:
+    build: /home/thor/INFRA_GAME/Interface
+    container_name: react
+    ports:
+      - 3000:3000
+    links:
+      - server
+    volumes:
+      - /home/thor/INFRA_GAME/Interface/src:/app/src
+      - /home/thor/INFRA_GAME/Interface/public:/app/public
+    command: npm run start -openssl-legacy-provider
